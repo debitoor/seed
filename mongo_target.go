@@ -2,22 +2,24 @@ package main
 
 import (
 	"fmt"
-	"labix.org/v2/mgo"
-	"labix.org/v2/mgo/bson"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"net/url"
 	"reflect"
 	"regexp"
 	"strings"
 	"sync"
 	"time"
+	"net"
+	"crypto/tls"
 )
 
 type MongoTarget struct {
-	dst    *mgo.Session
+	dst	*mgo.Session
 	dstURI *url.URL
 	dstDB  string
 
-	src    *mgo.Session
+	src	*mgo.Session
 	srcURI *url.URL
 	srcDB  string
 
@@ -31,11 +33,40 @@ func NewMongoTarget(uri *url.URL, dstDB string) *MongoTarget {
 
 // Dial connect to mongo, and return an error if there's a problem
 func (t *MongoTarget) Dial() error {
-	dst, err := mgo.Dial(t.dstURI.String())
-	if err != nil {
-		return fmt.Errorf("Cannot dial %s\n, %v", t.dstURI, err)
+	username := t.dstURI.User.Username()
+	password, _ := t.dstURI.User.Password()
+	logger.Debug("dstURI: %+v", t.dstURI)
+	logger.Debug("dstURI.username: %v", username)
+	logger.Debug("dstURI.password: %v", password)
+	logger.Debug("dstURI.host: %v", t.dstURI.Host)
+	logger.Debug("dstURI.host: %v", t.dstURI.Fragment)
+	logger.Debug("dstDB: %v", t.dstDB)
+
+	parsedQuery, _ := url.ParseQuery(t.dstURI.RawQuery)
+	logger.Debug("queryParams: %v", parsedQuery)
+	logger.Debug("queryParams.ssl: %v", parsedQuery["ssl"][0])
+// 	logger.Debug("queryParams.replicaSet: %v", parsedQuery["replicaSet"][0])
+
+	servers := strings.Split(t.dstURI.Host, ",")
+	dialInfo := &mgo.DialInfo{
+		Addrs: servers,
+		Database: t.dstDB,
+		Username: username,
+		Password: password,
+// 		ReplicaSetName: parsedQuery["replicaSet"][0], //ToDo: put into if
+		DialServer: func(addr *mgo.ServerAddr) (net.Conn, error) { //ToDo: put into if
+			conn, err := tls.Dial("tcp", addr.String(), &tls.Config{})
+			logger.Debug("tls err, %v", err)
+			return conn, err
+		},
+		Timeout: time.Second * 10,
 	}
-	t.dst = dst
+	session, err := mgo.DialWithInfo(dialInfo)
+// 	dst, err := mgo.Dial(t.dstURI.String()) // todo: replace with DialWithInfo()
+	if err != nil {
+		return fmt.Errorf("Cannot dial with dialInfo %v\n, %v", dialInfo, err)
+	}
+	t.dst = session
 	return nil
 }
 
@@ -50,7 +81,7 @@ func (t *MongoTarget) Close() {
 // KeepAlive sends a ping to mongo, and reconnects if there's a failure
 func (t *MongoTarget) KeepAlive() error {
 	if err := t.dst.Ping(); err != nil {
-		t.dst, err = mgo.Dial(t.dstURI.String())
+		t.dst, err = mgo.Dial(t.dstURI.String()) // todo: replace with DialWithInfo()
 		if err != nil {
 			return err
 		}
@@ -274,10 +305,10 @@ func (t *MongoTarget) SyncCollection(collection string) (err error) {
 
 	// set up goroutines and channels to handle the inserts
 	var (
-		quit       = make(chan bool)
-		chdone     = make(chan int, 1)
-		cierr      = make(chan error)
-		wg         = new(sync.WaitGroup)
+		quit	   = make(chan bool)
+		chdone	 = make(chan int, 1)
+		cierr	  = make(chan error)
+		wg		 = new(sync.WaitGroup)
 		opChannels = newOpChannels()
 	)
 
@@ -289,8 +320,8 @@ func (t *MongoTarget) SyncCollection(collection string) (err error) {
 	go t.collectionIterator(t.src.Clone(), collection, count, opChannels, chdone, quit, cierr, wg)
 
 	var (
-		got      = 0
-		total    = 0
+		got	  = 0
+		total	= 0
 		finished = false
 	)
 
@@ -331,10 +362,10 @@ func (t *MongoTarget) collectionIterator(sess *mgo.Session, collection string, c
 	defer wg.Done()
 
 	var (
-		buffer     = make([]interface{}, 0, BUFFER_SIZE)
-		doc        = bson.M{}
-		idx        = 0
-		sent       = 0
+		buffer	 = make([]interface{}, 0, BUFFER_SIZE)
+		doc		= bson.M{}
+		idx		= 0
+		sent	   = 0
 		currentId  interface{} //bson.ObjectId
 		bufferSize = 0
 	)

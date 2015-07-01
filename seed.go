@@ -5,7 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"labix.org/v2/mgo"
+	"gopkg.in/mgo.v2"
 	"net/url"
 	"os"
 	"runtime"
@@ -81,7 +81,9 @@ func main() {
 		Quit(1, err)
 	}
 
-	source, err := mgo.Dial(srcURI.String())
+	srcTarget := NewMongoTarget(srcURI, srcDB)
+	err = srcTarget.Dial()
+	source := srcTarget.dst
 	if err != nil {
 		logger.Critical("Cannot dial %s\n, %v", srcURI.String(), err)
 		Quit(1, err)
