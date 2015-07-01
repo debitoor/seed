@@ -76,7 +76,7 @@ func (t *MongoTarget) Close() {
 // KeepAlive sends a ping to mongo, and reconnects if there's a failure
 func (t *MongoTarget) KeepAlive() error {
 	if err := t.dst.Ping(); err != nil {
-		t.dst, err = mgo.Dial(t.dstURI.String()) // todo: replace with DialWithInfo()
+		err = t.Dial()
 		if err != nil {
 			return err
 		}
