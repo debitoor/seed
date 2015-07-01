@@ -61,9 +61,10 @@ func (t *MongoTarget) Dial() error {
 		},
 		Timeout: time.Second * 60,
 	}
-// 	if parsedQuery["replicaSet"] {
-// 		dialInfo.ReplicaSetName = parsedQuery["replicaSet"][0]
-// 	}
+	replicaSet, hasReplicaSet := parsedQuery["replicaSet"]
+	if hasReplicaSet {
+		dialInfo.ReplicaSetName = replicaSet[0]
+	}
 	session, err := mgo.DialWithInfo(dialInfo)
 // 	dst, err := mgo.Dial(t.dstURI.String()) // todo: replace with DialWithInfo()
 	if err != nil {
