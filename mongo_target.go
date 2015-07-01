@@ -35,38 +35,29 @@ func NewMongoTarget(uri *url.URL, dstDB string) *MongoTarget {
 func (t *MongoTarget) Dial() error {
 	username := t.dstURI.User.Username()
 	password, _ := t.dstURI.User.Password()
-	logger.Debug("dstURI: %+v", t.dstURI)
-	logger.Debug("dstURI.username: %v", username)
-	logger.Debug("dstURI.password: %v", password)
-	logger.Debug("dstURI.host: %v", t.dstURI.Host)
-	logger.Debug("dstURI.host: %v", t.dstURI.Fragment)
-	logger.Debug("dstDB: %v", t.dstDB)
-
 	parsedQuery, _ := url.ParseQuery(t.dstURI.RawQuery)
-	logger.Debug("queryParams: %v", parsedQuery)
-	logger.Debug("queryParams.ssl: %v", parsedQuery["ssl"][0])
-// 	logger.Debug("queryParams.replicaSet: %v", parsedQuery["replicaSet"][0])
-
 	servers := strings.Split(t.dstURI.Host, ",")
+
 	dialInfo := &mgo.DialInfo{
 		Addrs: servers,
 		Database: t.dstDB,
 		Username: username,
 		Password: password,
-// 		ReplicaSetName: parsedQuery["replicaSet"][0], //ToDo: put into if
-		DialServer: func(addr *mgo.ServerAddr) (net.Conn, error) { //ToDo: put into if
-			conn, err := tls.Dial("tcp", addr.String(), &tls.Config{InsecureSkipVerify:true})
-			logger.Debug("tls err, %v", err)
-			return conn, err
-		},
 		Timeout: time.Second * 60,
 	}
-	replicaSet, hasReplicaSet := parsedQuery["replicaSet"]
-	if hasReplicaSet {
+	if replicaSet, hasReplicaSet := parsedQuery["replicaSet"]; hasReplicaSet {
 		dialInfo.ReplicaSetName = replicaSet[0]
 	}
+	if ssl, hasSSL := parsedQuery["ssl"]; hasSSL && ssl[0] == "true" {
+		dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
+			conn, err := tls.Dial("tcp", addr.String(), &tls.Config{InsecureSkipVerify:true})
+			if err != nil {
+				logger.Error("tls err, %v", err)
+			}
+			return conn, err
+		}
+	}
 	session, err := mgo.DialWithInfo(dialInfo)
-// 	dst, err := mgo.Dial(t.dstURI.String()) // todo: replace with DialWithInfo()
 	if err != nil {
 		return fmt.Errorf("Cannot dial with dialInfo %v\n, %v", dialInfo, err)
 	}
