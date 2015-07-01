@@ -55,12 +55,15 @@ func (t *MongoTarget) Dial() error {
 		Password: password,
 // 		ReplicaSetName: parsedQuery["replicaSet"][0], //ToDo: put into if
 		DialServer: func(addr *mgo.ServerAddr) (net.Conn, error) { //ToDo: put into if
-			conn, err := tls.Dial("tcp", addr.String(), &tls.Config{})
+			conn, err := tls.Dial("tcp", addr.String(), &tls.Config{InsecureSkipVerify:true})
 			logger.Debug("tls err, %v", err)
 			return conn, err
 		},
-		Timeout: time.Second * 10,
+		Timeout: time.Second * 60,
 	}
+// 	if parsedQuery["replicaSet"] {
+// 		dialInfo.ReplicaSetName = parsedQuery["replicaSet"][0]
+// 	}
 	session, err := mgo.DialWithInfo(dialInfo)
 // 	dst, err := mgo.Dial(t.dstURI.String()) // todo: replace with DialWithInfo()
 	if err != nil {
