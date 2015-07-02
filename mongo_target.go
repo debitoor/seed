@@ -43,14 +43,14 @@ func (t *MongoTarget) Dial() error {
 		Database: t.dstDB,
 		Username: username,
 		Password: password,
-		Timeout: time.Second * 60,
+		Timeout: time.Second * *connectionTimeout,
 	}
 	if replicaSet, hasReplicaSet := parsedQuery["replicaSet"]; hasReplicaSet {
 		dialInfo.ReplicaSetName = replicaSet[0]
 	}
 	if ssl, hasSSL := parsedQuery["ssl"]; hasSSL && ssl[0] == "true" {
 		dialInfo.DialServer = func(addr *mgo.ServerAddr) (net.Conn, error) {
-			conn, err := tls.Dial("tcp", addr.String(), &tls.Config{InsecureSkipVerify:true})
+			conn, err := tls.Dial("tcp", addr.String(), &tls.Config{InsecureSkipVerify: *ignoreSslError})
 			if err != nil {
 				logger.Error("tls err, %v", err)
 			}
