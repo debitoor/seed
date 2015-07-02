@@ -43,7 +43,7 @@ func (t *MongoTarget) Dial() error {
 		Database: t.dstDB,
 		Username: username,
 		Password: password,
-		Timeout: time.Second * *connectionTimeout,
+		Timeout: time.Second * time.Duration(*connectionTimeout),
 	}
 	if replicaSet, hasReplicaSet := parsedQuery["replicaSet"]; hasReplicaSet {
 		dialInfo.ReplicaSetName = replicaSet[0]
