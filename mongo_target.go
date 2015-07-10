@@ -243,7 +243,7 @@ func (t *MongoTarget) Sync(src *mgo.Session, srcURI *url.URL, srcDB string) (err
 		}
 		expected++
 		logger.Finest("Launching goroutine to copy collection %s", v)
-		go func(c string) {
+		func(c string) {
 			err := t.SyncCollection(c)
 			if err != nil {
 				chcol <- CollectionSyncTracker{c, err}
