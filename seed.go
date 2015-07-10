@@ -8,6 +8,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"net/url"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -53,7 +54,7 @@ func main() {
 	flag.Parse()
 	logger = initLogger()
 
-	//runtime.GOMAXPROCS(runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	if *source_uri == "" || *dest_uri == "" {
 		Quit(1, errors.New("Provide both source and destination URIs"))
