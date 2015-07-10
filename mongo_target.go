@@ -254,7 +254,7 @@ func (t *MongoTarget) Sync(src *mgo.Session, srcURI *url.URL, srcDB string) (err
 				chcol <- CollectionSyncTracker{c, nil}
 			}
 		}(v)
-		for gorountines_cnt >= 5 {
+		for gorountines_cnt > 0 {
 			time.Sleep(400 * time.Millisecond) // pause a little bit, just to be polite
 		}
 	}
