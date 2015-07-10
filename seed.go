@@ -65,7 +65,7 @@ func main() {
 		*forceIndexBuild = "bg"
 	case "fg", "foreground":
 		*forceIndexBuild = "fg"
-	case "immediate":
+	case "im", "immediate":
 		*forceIndexBuild = "im"
 	case "":
 		*forceIndexBuild = ""
