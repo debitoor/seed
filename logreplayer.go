@@ -76,7 +76,7 @@ func (l *logReplayer) playLog() (err error) {
 
 	// set up initial query to the oplog
 	logger.Info("Replaying oplog from %s to %s", l.from, l.to)
-	iter := sourceOplog.Find(bson.M{"ts": bson.M{"$gt": bson.MongoTimestamp(l.from)}}).LogReplay().Sort("$natural").Tail(1 * time.Second)
+	iter := sourceOplog.Find(bson.M{"ts": bson.M{"$gt": bson.MongoTimestamp(l.from)}}).LogReplay().Sort("ts", "$natural").Tail(1 * time.Second)
 
 	// loop over the oplog
 outer:
