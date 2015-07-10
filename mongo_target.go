@@ -237,21 +237,26 @@ func (t *MongoTarget) Sync(src *mgo.Session, srcURI *url.URL, srcDB string) (err
 
 	chcol := make(chan CollectionSyncTracker)
 	expected := 0
+	gorountines_cnt := 0
 	for _, v := range names {
 		if strings.HasPrefix(v, "system.") {
 			continue
 		}
 		expected++
+		gorountines_cnt++
 		logger.Finest("Launching goroutine to copy collection %s", v)
-		func(c string) {
+		go func(c string) {
 			err := t.SyncCollection(c)
+			gorountines_cnt--
 			if err != nil {
 				chcol <- CollectionSyncTracker{c, err}
 			} else {
 				chcol <- CollectionSyncTracker{c, nil}
 			}
 		}(v)
-		time.Sleep(400 * time.Millisecond) // pause a little bit, just to be polite
+		for gorountines_cnt >= 5 {
+			time.Sleep(400 * time.Millisecond) // pause a little bit, just to be polite
+		}
 	}
 
 	for i := 0; i < expected; i++ {
