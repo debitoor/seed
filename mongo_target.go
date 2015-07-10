@@ -166,7 +166,7 @@ func (t *MongoTarget) Sync(src *mgo.Session, srcURI *url.URL, srcDB string) (err
 	t.srcDB = srcDB
 
 	t.dst.EnsureSafe(&mgo.Safe{})
-	t.dst.SetBatch(1000)
+	t.dst.SetBatch(2500)
 	t.dst.SetPrefetch(0.5)
 
 	names, err := src.DB(t.srcDB).CollectionNames()
