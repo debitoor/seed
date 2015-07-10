@@ -8,7 +8,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"net/url"
 	"os"
-	"runtime"
 	"strings"
 	"time"
 )
