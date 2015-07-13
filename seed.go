@@ -42,10 +42,10 @@ var (
 	connectionTimeout = flag.Int("connectionTimeout", 60, "connection timeout in seconds")
 )
 
-var logger log4go.Logger
+var logger log4go.Loggersome
 
 const (
-	BUFFER_SIZE     = 2500
+	BUFFER_SIZE     = 10000
 	GOPOOL_SIZE     = 16
 	MAX_BUFFER_SIZE = 4e7
 )
