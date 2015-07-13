@@ -166,7 +166,7 @@ func (t *MongoTarget) Sync(src *mgo.Session, srcURI *url.URL, srcDB string) (err
 	t.srcDB = srcDB
 
 	t.dst.EnsureSafe(&mgo.Safe{})
-	t.dst.SetBatch(500)
+	t.dst.SetBatch(200)
 	t.dst.SetPrefetch(0.5)
 
 	names, err := src.DB(t.srcDB).CollectionNames()
@@ -237,26 +237,24 @@ func (t *MongoTarget) Sync(src *mgo.Session, srcURI *url.URL, srcDB string) (err
 
 	chcol := make(chan CollectionSyncTracker)
 	expected := 0
-	gorountines_cnt := 0
+	wg := new(sync.WaitGroup);
 	for _, v := range names {
 		if strings.HasPrefix(v, "system.") {
 			continue
 		}
 		expected++
-		gorountines_cnt++
 		logger.Finest("Launching goroutine to copy collection %s", v)
+		wg.Add(1)
 		go func(c string) {
+			defer wg.Done()
 			err := t.SyncCollection(c)
-			gorountines_cnt--
 			if err != nil {
 				chcol <- CollectionSyncTracker{c, err}
 			} else {
 				chcol <- CollectionSyncTracker{c, nil}
 			}
 		}(v)
-		for gorountines_cnt > 0 {
-			time.Sleep(400 * time.Millisecond) // pause a little bit, just to be polite
-		}
+		wg.Wait()
 	}
 
 	for i := 0; i < expected; i++ {
