@@ -46,7 +46,7 @@ var logger log4go.Logger
 
 const (
 	BUFFER_SIZE     = 10000
-	GOPOOL_SIZE     = 16
+	GOPOOL_SIZE     = 1
 	MAX_BUFFER_SIZE = 4e7
 )
 
