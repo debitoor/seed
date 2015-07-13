@@ -237,14 +237,12 @@ func (t *MongoTarget) Sync(src *mgo.Session, srcURI *url.URL, srcDB string) (err
 
 	chcol := make(chan CollectionSyncTracker)
 	expected := 0
-	goroutines_cnt := 0
 	for _, v := range names {
 		if strings.HasPrefix(v, "system.") {
 			continue
 		}
 		expected++
 		logger.Finest("Launching goroutine to copy collection %s", v)
-		goroutines_cnt++
 		go func(c string) {
 			err := t.SyncCollection(c)
 			goroutines_cnt--
@@ -254,9 +252,7 @@ func (t *MongoTarget) Sync(src *mgo.Session, srcURI *url.URL, srcDB string) (err
 				chcol <- CollectionSyncTracker{c, nil}
 			}
 		}(v)
-		for goroutines_cnt > 20 {
-			time.Sleep(400 * time.Millisecond)
-		}
+		time.Sleep(400 * time.Millisecond)
 	}
 
 	for i := 0; i < expected; i++ {
