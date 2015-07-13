@@ -247,15 +247,15 @@ func (t *MongoTarget) Sync(src *mgo.Session, srcURI *url.URL, srcDB string) (err
 		goroutines_cnt++
 		go func(c string) {
 			err := t.SyncCollection(c)
+			goroutines_cnt--
 			if err != nil {
 				chcol <- CollectionSyncTracker{c, err}
 			} else {
 				chcol <- CollectionSyncTracker{c, nil}
 			}
-			goroutines_cnt--
 		}(v)
 		for goroutines_cnt > 0 {
-			time.Sleep(400)
+			time.Sleep(400 * time.Millisecond)
 		}
 	}
 
