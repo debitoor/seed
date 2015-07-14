@@ -443,7 +443,7 @@ A:
 			buffer = make([]interface{}, 0, BUFFER_SIZE)
 			bufferSize = 0
 			if *sleepOnInsert > 0 {
-				time.Sleep(time.Duration(sent * *sleepOnInsert) * time.Millisecond)
+				time.Sleep(time.Duration(sent * *sleepOnInsertProp + *sleepOnInsert) * time.Millisecond)
 			}
 		}
 

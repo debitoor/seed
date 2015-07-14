@@ -43,6 +43,7 @@ var (
 	bufferSize        = flag.Int("bufferSize", 2500, "buffer size (amount of documents to write at once)")
 	poolSize          = flag.Int("poolSize", 16, "pool size (amount of parallel connections for each collection)")
 	sleepOnInsert     = flag.Int("sleepOnInsert", 0, "sleep (ms) after inserts")
+	sleepOnInsertProp = flag.Int("sleepOnInsertProp", 0, "sleep (ms) after inserts proportional")
 )
 
 var logger log4go.Logger
