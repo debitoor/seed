@@ -387,7 +387,7 @@ A:
 				break
 			}
 
-			logger.Error("got error (%v) for '(%s)' reseting connection, sleeping for 60 seconds, please stand by...", collection, err)
+			logger.Error("got error (%v) for '(%s)' reseting connection, sleeping for 60 seconds, please stand by...", err, collection)
 			time.Sleep(60 * time.Second)
 			sess.Refresh()
 			logger.Info("connection 'refreshed', issuing query")
