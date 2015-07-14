@@ -48,7 +48,7 @@ var (
 
 var logger log4go.Logger
 
-CONST (
+const (
 	BUFFER_SIZE     = 2500
 	GOPOOL_SIZE     = 1
 	MAX_BUFFER_SIZE = 4e7
