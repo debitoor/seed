@@ -442,6 +442,9 @@ A:
 			sent++
 			buffer = make([]interface{}, 0, BUFFER_SIZE)
 			bufferSize = 0
+			if *sleepOnInsert > 0 {
+				time.sleep(sent * *sleepOnInsert * time.Millisecond)
+			}
 		}
 
 		buffer = append(buffer, doc)
