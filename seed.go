@@ -47,8 +47,8 @@ var (
 var logger log4go.Logger
 
 var (
-	BUFFER_SIZE     = int(*bufferSize)
-	GOPOOL_SIZE     = int(*poolSize)
+	BUFFER_SIZE     = *bufferSize
+	GOPOOL_SIZE     = *poolSize
 	MAX_BUFFER_SIZE = 4e7
 )
 
