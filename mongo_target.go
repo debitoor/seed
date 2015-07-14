@@ -444,7 +444,6 @@ A:
 			sent++
 			buffer = make([]interface{}, 0, BUFFER_SIZE)
 			bufferSize = 0
-			time.Sleep(time.Duration(sent + 300) * time.Millisecond)
 		}
 
 		buffer = append(buffer, doc)
