@@ -437,7 +437,7 @@ A:
 			logger.Error("can't find doc size, %v", er)
 			return
 		}
-		if (float64(sz + bufferSize) > MAX_BUFFER_SIZE) || (len(buffer) > BUFFER_SIZE) {
+		if (float64(sz + bufferSize) > MAX_BUFFER_SIZE) || (len(buffer) >= BUFFER_SIZE) {
 			// send it off to be inserted
 			logger.Finest("pushing writes: bufferSize: %d, count: %d", bufferSize+sz, len(buffer))
 			opChannels.chop <- InsertMessage{ops: buffer, coll: collection}
