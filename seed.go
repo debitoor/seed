@@ -40,17 +40,17 @@ var (
 	allDbs            = flag.Bool("allDbs", false, "copy all the databases from the source to the destination")
 	ignoreSslError    = flag.Bool("ignoreSslError", false, "ignore validation of SSL certificate")
 	connectionTimeout = flag.Int("connectionTimeout", 60, "connection timeout in seconds")
-	bufferSize        = flag.Int("bufferSize", 2500, "buffer size (amount of documents to write at once)")
-	poolSize          = flag.Int("poolSize", 16, "pool size (amount of parallel connections for each collection)")
+	//bufferSize        = flag.Int("bufferSize", 2500, "buffer size (amount of documents to write at once)")
+	//poolSize          = flag.Int("poolSize", 16, "pool size (amount of parallel connections for each collection)")
 	sleepOnInsert     = flag.Int("sleepOnInsert", 0, "sleep (ms) after inserts")
 	sleepOnInsertProp = flag.Int("sleepOnInsertProp", 0, "sleep (ms) after inserts proportional")
 )
 
 var logger log4go.Logger
 
-var (
-	BUFFER_SIZE     = *bufferSize
-	GOPOOL_SIZE     = *poolSize
+CONST (
+	BUFFER_SIZE     = 2500
+	GOPOOL_SIZE     = 1
 	MAX_BUFFER_SIZE = 4e7
 )
 
