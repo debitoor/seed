@@ -551,7 +551,7 @@ func (t *MongoTarget) SyncIndexes(unique bool) error {
 			if err.Error() == "index with name _id_ already exists" {
 				continue
 			}
-			logger.Error("Could not add index: %s", err.Error())
+			logger.Error("Could not add index: %+v, error: %s", doc, err.Error())
 			dstDB = t.dst.New().DB(t.dstDB)
 		}
 	}
