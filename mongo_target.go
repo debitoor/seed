@@ -521,6 +521,7 @@ func (t *MongoTarget) SyncIndexes(unique bool) error {
 	}
 
 	doc := bson.M{}
+	dstDB := t.dst.New().DB(t.dstDB)
 	iter := t.src.DB(t.srcDB).C("system.indexes").Find(query).Iter()
 	for iter.Next(&doc) {
 		ns, ok := doc["ns"].(string)
@@ -545,12 +546,13 @@ func (t *MongoTarget) SyncIndexes(unique bool) error {
 
 		logger.Debug("Adding index %+v", doc)
 		doc["ns"] = strings.Replace(ns, t.srcDB, t.dstDB, 1)
-		err := t.dst.DB(t.dstDB).C("system.indexes").Insert(doc)
+		err := dstDB.C("system.indexes").Insert(doc)
 		if err != nil {
 			if err.Error() == "index with name _id_ already exists" {
 				continue
 			}
 			logger.Error("Could not add index: %s", err.Error())
+			dstDB = t.dst.New().DB(t.dstDB)
 		}
 	}
 	return nil
